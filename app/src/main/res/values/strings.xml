@@ -21,4 +21,5 @@
   freshwater lake.</string>
     <string name="question_brasil">Brazil is located in north America</string>
     <string name="previous_button">Previous</string>
+    <string name="cheats_remaing">You have %1$d cheats remaining!</string>
 </resources>

@@ -17,9 +17,11 @@ class MainActivity : AppCompatActivity() {
     private var nextButton: Button? = null
     private var previousButton: Button? = null
     private var mQuestionTextView: TextView? = null
+    private var cheatsRemainingTextView : TextView? = null
     private var cheatButton: Button? = null
     private var currentIndex: Int = 0
     private var currentScore: Int = 0
+    private var cheatAttempts : Int = 3
 
     private val questionBank = arrayOf(
         Question(R.string.question_australia, isAnswerTrue = true, isCheaterOnQuestion = false),
@@ -47,6 +49,14 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         updateQuestion()
         resetCheatedValues()
+        setCheatsRemainingText()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (cheatAttempts == 0) {
+            cheatButton?.isEnabled = false
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -66,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         Log.i(TAG, "onSaveInstanceState")
         outState.putInt(KEY_INDEX, currentIndex)
+        outState.putInt(KEY_CHEAT_ATTEMPTS, cheatAttempts)
         outState.putBoolean(KEY_CHEATER, questionBank[currentIndex].isCheaterOnQuestion)
     }
 
@@ -91,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         previousButton = findViewById(R.id.previous_button)
         cheatButton = findViewById(R.id.cheat_button)
+        cheatsRemainingTextView = findViewById(R.id.tv_remainingCheats)
     }
 
     private fun setupListeners() {
@@ -134,8 +146,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         cheatButton?.setOnClickListener {
+            cheatAttempts--
+            setCheatsRemainingText()
             newIntent()
         }
+    }
+
+    private fun setCheatsRemainingText() {
+        cheatsRemainingTextView?.text = getString(R.string.cheats_remaing, cheatAttempts)
     }
 
     private fun lastQuestion() = currentIndex == questionBank.size - 1
@@ -211,6 +229,7 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "QuizActivity"
         private const val KEY_INDEX = "index"
         private const val KEY_CHEATER = "cheater_key"
+        private const val KEY_CHEAT_ATTEMPTS = "cheat attempts key"
         private const val REQUEST_CODE_CHEAT = 0
         private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
     }

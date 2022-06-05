@@ -41,12 +41,12 @@
             android:id="@+id/previous_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="16dp"
             android:padding="16dp"
             android:text="@string/previous_button" />
 
         <Button
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="16dp"
             android:id="@+id/cheat_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -62,4 +62,11 @@
 
 
     </LinearLayout>
+
+    <TextView
+        android:layout_marginTop="16dp"
+        android:id="@+id/tv_remainingCheats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cheats remaining" />
 </LinearLayout>

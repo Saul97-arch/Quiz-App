@@ -1,10 +1,17 @@
 package android.bignerdranch.com
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.ViewAnimationUtils
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+
 
 class CheatActivity : AppCompatActivity() {
 
@@ -12,6 +19,7 @@ class CheatActivity : AppCompatActivity() {
     private var answerTextView: TextView? = null
     private var showAnswerButton: Button? = null
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cheat)
@@ -45,9 +53,37 @@ class CheatActivity : AppCompatActivity() {
         showAnswerButton = findViewById(R.id.show_answer_button)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun setupListeners() {
         showAnswerButton?.setOnClickListener {
             setTextAnswer(answerIsTrue as Boolean)
+            animateButton()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun animateButton() {
+        val cx: Int? = showAnswerButton?.width?.div(2)
+        val cy: Int? = showAnswerButton?.height?.div(2)
+        val radius: Int? = showAnswerButton?.width
+
+        if (cx != null && cy != null && radius != null) {
+            val anim = ViewAnimationUtils
+                .createCircularReveal(
+                    showAnswerButton,
+                    cx,
+                    cy,
+                    radius.toFloat(),
+                    0.0F
+                )
+
+            anim.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    showAnswerButton?.visibility = View.INVISIBLE
+                }
+            })
+            anim.start()
         }
     }
 
