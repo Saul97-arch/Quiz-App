@@ -7,8 +7,8 @@ import android.widget.Button
 import android.widget.TextView
 
 class CheatActivity : AppCompatActivity() {
-    private var answerIsTrue: Boolean? = null
 
+    private var answerIsTrue: Boolean? = null
     private var answerTextView: TextView? = null
     private var showAnswerButton: Button? = null
 
@@ -27,6 +27,11 @@ class CheatActivity : AppCompatActivity() {
         }
 
         setupListeners()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        answerIsTrue?.let { outState.putBoolean(KEY_ANSWER_IS_TRUE, it) }
     }
 
     private fun getAnswer(): Unit? {
@@ -52,18 +57,12 @@ class CheatActivity : AppCompatActivity() {
         } else {
             answerTextView?.setText(R.string.false_button)
         }
-        setAnswerShownResult(true)
+        setAnswerShownResult()
     }
 
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        answerIsTrue?.let { outState.putBoolean(KEY_ANSWER_IS_TRUE, it) }
-    }
-
-    private fun setAnswerShownResult(isAnswerShown: Boolean) {
+    private fun setAnswerShownResult() {
         val data = Intent()
-        data.putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
+        data.putExtra(EXTRA_ANSWER_SHOWN, true)
         setResult(RESULT_OK, data)
     }
 

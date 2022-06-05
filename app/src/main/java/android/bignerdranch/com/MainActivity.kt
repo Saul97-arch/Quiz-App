@@ -22,13 +22,13 @@ class MainActivity : AppCompatActivity() {
     private var currentScore: Int = 0
 
     private val questionBank = arrayOf(
-        Question(R.string.question_australia, isAnswerTrue = true, cheated = false),
-        Question(R.string.question_oceans, isAnswerTrue = true, cheated = false),
-        Question(R.string.question_mideast, isAnswerTrue = false, cheated = false),
-        Question(R.string.question_africa, isAnswerTrue = false, cheated = false),
-        Question(R.string.question_americas, isAnswerTrue = true, cheated = false),
-        Question(R.string.question_asia, isAnswerTrue = true, cheated = false),
-        Question(R.string.question_brasil, isAnswerTrue = false, cheated = false)
+        Question(R.string.question_australia, isAnswerTrue = true, isCheaterOnQuestion = false),
+        Question(R.string.question_oceans, isAnswerTrue = true, isCheaterOnQuestion = false),
+        Question(R.string.question_mideast, isAnswerTrue = false, isCheaterOnQuestion = false),
+        Question(R.string.question_africa, isAnswerTrue = false, isCheaterOnQuestion = false),
+        Question(R.string.question_americas, isAnswerTrue = true, isCheaterOnQuestion = false),
+        Question(R.string.question_asia, isAnswerTrue = true, isCheaterOnQuestion = false),
+        Question(R.string.question_brasil, isAnswerTrue = false, isCheaterOnQuestion = false)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +39,8 @@ class MainActivity : AppCompatActivity() {
 
         savedInstanceState?.let {
             currentIndex = savedInstanceState.getInt(KEY_INDEX, 0)
-            questionBank[currentIndex].cheated = savedInstanceState.getBoolean(KEY_CHEATER, false)
+            questionBank[currentIndex].isCheaterOnQuestion =
+                savedInstanceState.getBoolean(KEY_CHEATER, false)
         }
 
         setupElements()
@@ -48,10 +49,37 @@ class MainActivity : AppCompatActivity() {
         resetCheatedValues()
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            data?.let {
+                questionBank[currentIndex].isCheaterOnQuestion = CheatActivity.wasAnswerShown(data)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.i(TAG, "onSaveInstanceState")
+        outState.putInt(KEY_INDEX, currentIndex)
+        outState.putBoolean(KEY_CHEATER, questionBank[currentIndex].isCheaterOnQuestion)
+    }
+
+    private fun newIntent() {
+        val intent = Intent(this, CheatActivity::class.java).apply {
+            putExtra(EXTRA_ANSWER_IS_TRUE, questionBank[currentIndex].isAnswerTrue)
+        }
+        startActivityForResult(intent, REQUEST_CODE_CHEAT)
+    }
+
     private fun resetCheatedValues() {
         if (currentIndex + 1 == questionBank.size) {
             questionBank.map { question ->
-                question.cheated = false
+                question.isCheaterOnQuestion = false
             }
         }
     }
@@ -79,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(true)
             disableButtonForCurrentQuestion()
             displayFinalScore()
-            if (currentIndex == questionBank.size - 1) {
+            if (lastQuestion()) {
                 resetScore()
             }
         }
@@ -89,7 +117,7 @@ class MainActivity : AppCompatActivity() {
             disableButtonForCurrentQuestion()
             displayFinalScore()
 
-            if (currentIndex == questionBank.size - 1) {
+            if (lastQuestion()) {
                 resetScore()
             }
         }
@@ -110,44 +138,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-
-        if (requestCode == REQUEST_CODE_CHEAT) {
-            data?.let {
-                questionBank[currentIndex].cheated = CheatActivity.wasAnswerShown(data)
-            }
-        }
-    }
-
-    private fun newIntent() {
-        val intent = Intent(this, CheatActivity::class.java).apply {
-            putExtra(EXTRA_ANSWER_IS_TRUE, questionBank[currentIndex].isAnswerTrue)
-        }
-        startActivityForResult(intent, REQUEST_CODE_CHEAT)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i(TAG, "onSaveInstanceState")
-        outState.putInt(KEY_INDEX, currentIndex)
-        outState.putBoolean(KEY_CHEATER, questionBank[currentIndex].cheated)
-    }
+    private fun lastQuestion() = currentIndex == questionBank.size - 1
 
     private fun displayFinalScore() {
         if (currentIndex + 1 == questionBank.size) {
             Toast.makeText(
                 this,
-                "You got  ${
-                    (currentScore.toDouble().div(questionBank.size) * 100).roundToInt()
-                }% of the questions!",
+                "You got  ${getPercentageOfCorrectQuestions()}% of the questions!",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
+
+    private fun getPercentageOfCorrectQuestions() =
+        (currentScore.toDouble().div(questionBank.size) * 100).roundToInt()
 
     private fun disableButtonForCurrentQuestion() {
         trueButton?.isEnabled = false
@@ -177,7 +181,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userPressedTrue: Boolean) {
         val answerIsTrue: Boolean = questionBank[currentIndex].isAnswerTrue
 
-        val messageResId = if (questionBank[currentIndex].cheated) {
+        val messageResId = if (questionBank[currentIndex].isCheaterOnQuestion) {
             R.string.judgment_toast
         } else {
             if (userPressedTrue == answerIsTrue) {
