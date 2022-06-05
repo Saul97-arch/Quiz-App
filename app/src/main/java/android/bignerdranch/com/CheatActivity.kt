@@ -7,10 +7,6 @@ import android.widget.Button
 import android.widget.TextView
 
 class CheatActivity : AppCompatActivity() {
-
-    private val EXTRA_ANWSER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
-    private val KEY_AWNSER_IS_TRUE = "answerIsTrue"
-
     private var answerIsTrue: Boolean? = null
 
     private var answerTextView: TextView? = null
@@ -23,11 +19,11 @@ class CheatActivity : AppCompatActivity() {
         setupElements()
 
         savedInstanceState?.let {
-            answerIsTrue = savedInstanceState.getBoolean(KEY_AWNSER_IS_TRUE)
+            answerIsTrue = savedInstanceState.getBoolean(KEY_ANSWER_IS_TRUE)
         }
 
         getAnswer() ?: run {
-            answerIsTrue = intent.getBooleanExtra(EXTRA_ANWSER_IS_TRUE, false)
+            answerIsTrue = intent.getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false)
         }
 
         setupListeners()
@@ -62,20 +58,22 @@ class CheatActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        answerIsTrue?.let { outState.putBoolean(KEY_AWNSER_IS_TRUE, it) }
+        answerIsTrue?.let { outState.putBoolean(KEY_ANSWER_IS_TRUE, it) }
     }
 
     private fun setAnswerShownResult(isAnswerShown: Boolean) {
         val data = Intent()
-        data.putExtra(EXTRA_ANWSER_SHOWN, isAnswerShown)
+        data.putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown)
         setResult(RESULT_OK, data)
     }
 
 
     companion object {
-        private val EXTRA_ANWSER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown"
+        private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
+        private const val KEY_ANSWER_IS_TRUE = "answerIsTrue"
+        private const val EXTRA_ANSWER_SHOWN = "com.bignerdranch.android.geoquiz.answer_shown"
         fun wasAnswerShown(result: Intent): Boolean {
-            return result.getBooleanExtra(EXTRA_ANWSER_SHOWN, false)
+            return result.getBooleanExtra(EXTRA_ANSWER_SHOWN, false)
         }
     }
 }

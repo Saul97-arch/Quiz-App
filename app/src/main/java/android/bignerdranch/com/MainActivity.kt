@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.roundToInt
 
-
 class MainActivity : AppCompatActivity() {
 
     private var trueButton: Button? = null
@@ -19,17 +18,8 @@ class MainActivity : AppCompatActivity() {
     private var previousButton: Button? = null
     private var mQuestionTextView: TextView? = null
     private var cheatButton: Button? = null
-
-    private val TAG = "QuizActivity"
-    private val KEY_INDEX = "index"
-    private val KEY_CHEATER = "cheater_key"
-    private var REQUEST_CODE_CHEAT = 0
-    private val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
-
-
     private var currentIndex: Int = 0
     private var currentScore: Int = 0
-    private var isCheater: Boolean = false
 
     private val questionBank = arrayOf(
         Question(R.string.question_australia, isAnswerTrue = true, cheated = false),
@@ -49,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         savedInstanceState?.let {
             currentIndex = savedInstanceState.getInt(KEY_INDEX, 0)
-            isCheater = savedInstanceState.getBoolean(KEY_CHEATER, false)
+            questionBank[currentIndex].cheated = savedInstanceState.getBoolean(KEY_CHEATER, false)
         }
 
         setupElements()
@@ -106,7 +96,6 @@ class MainActivity : AppCompatActivity() {
 
         nextButton?.setOnClickListener {
             goToNextQuestion()
-            isCheater = false
             updateQuestion()
             enableButtonForTheNextQuestion()
         }
@@ -129,7 +118,7 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_CODE_CHEAT) {
             data?.let {
-                isCheater = CheatActivity.wasAnswerShown(data)
+                questionBank[currentIndex].cheated = CheatActivity.wasAnswerShown(data)
             }
         }
     }
@@ -145,7 +134,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         Log.i(TAG, "onSaveInstanceState")
         outState.putInt(KEY_INDEX, currentIndex)
-        outState.putBoolean(KEY_CHEATER, isCheater)
+        outState.putBoolean(KEY_CHEATER, questionBank[currentIndex].cheated)
     }
 
     private fun displayFinalScore() {
@@ -188,7 +177,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userPressedTrue: Boolean) {
         val answerIsTrue: Boolean = questionBank[currentIndex].isAnswerTrue
 
-        val messageResId = if (isCheater) {
+        val messageResId = if (questionBank[currentIndex].cheated) {
             R.string.judgment_toast
         } else {
             if (userPressedTrue == answerIsTrue) {
@@ -212,5 +201,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetScore() {
         currentScore = 0
+    }
+
+    companion object {
+        private const val TAG = "QuizActivity"
+        private const val KEY_INDEX = "index"
+        private const val KEY_CHEATER = "cheater_key"
+        private const val REQUEST_CODE_CHEAT = 0
+        private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
     }
 }
