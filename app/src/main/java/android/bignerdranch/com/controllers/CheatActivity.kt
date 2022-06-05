@@ -1,7 +1,8 @@
-package android.bignerdranch.com
+package android.bignerdranch.com.controllers
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.bignerdranch.com.R
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle

@@ -1,6 +1,8 @@
-package android.bignerdranch.com
+package android.bignerdranch.com.controllers
 
 import android.app.Activity
+import android.bignerdranch.com.model.Question
+import android.bignerdranch.com.R
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
