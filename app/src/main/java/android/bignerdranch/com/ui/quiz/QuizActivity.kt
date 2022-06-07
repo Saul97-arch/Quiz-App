@@ -2,6 +2,7 @@ package android.bignerdranch.com.ui.quiz
 
 import android.app.Activity
 import android.bignerdranch.com.R
+import android.bignerdranch.com.databinding.ActivityMainBinding
 import android.bignerdranch.com.ui.cheat.CheatActivity
 import android.bignerdranch.data.model.Question
 import android.content.Intent
@@ -30,7 +31,8 @@ class QuizActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setTitle(R.string.app_name)
         Log.d(TAG, "onCreateBundle called")
 
