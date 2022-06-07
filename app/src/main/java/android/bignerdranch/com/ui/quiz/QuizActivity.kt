@@ -1,8 +1,9 @@
-package android.bignerdranch.com.controllers
+package android.bignerdranch.com.ui.quiz
 
 import android.app.Activity
-import android.bignerdranch.com.model.Question
 import android.bignerdranch.com.R
+import android.bignerdranch.com.ui.cheat.CheatActivity
+import android.bignerdranch.data.model.Question
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,28 +13,20 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.roundToInt
 
-class MainActivity : AppCompatActivity() {
+class QuizActivity : AppCompatActivity() {
 
     private var trueButton: Button? = null
     private var falseButton: Button? = null
     private var nextButton: Button? = null
     private var previousButton: Button? = null
     private var mQuestionTextView: TextView? = null
-    private var cheatsRemainingTextView : TextView? = null
+    private var cheatsRemainingTextView: TextView? = null
     private var cheatButton: Button? = null
     private var currentIndex: Int = 0
     private var currentScore: Int = 0
-    private var cheatAttempts : Int = 3
+    private var cheatAttempts: Int = 3
 
-    private val questionBank = arrayOf(
-        Question(R.string.question_australia, isAnswerTrue = true, isCheaterOnQuestion = false),
-        Question(R.string.question_oceans, isAnswerTrue = true, isCheaterOnQuestion = false),
-        Question(R.string.question_mideast, isAnswerTrue = false, isCheaterOnQuestion = false),
-        Question(R.string.question_africa, isAnswerTrue = false, isCheaterOnQuestion = false),
-        Question(R.string.question_americas, isAnswerTrue = true, isCheaterOnQuestion = false),
-        Question(R.string.question_asia, isAnswerTrue = true, isCheaterOnQuestion = false),
-        Question(R.string.question_brasil, isAnswerTrue = false, isCheaterOnQuestion = false)
-    )
+    private val questionBank = Question.questionBank
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,8 +187,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        val question = questionBank[currentIndex].textResId
-        mQuestionTextView?.setText(question)
+        val question = questionBank[currentIndex].question
+        mQuestionTextView?.text = question
     }
 
     private fun checkAnswer(userPressedTrue: Boolean) {

@@ -1,4 +1,4 @@
-package android.bignerdranch.com.controllers
+package android.bignerdranch.com.ui.cheat
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 
 
 class CheatActivity : AppCompatActivity() {
+
+    //private val viewModel : CheatActivityViewModel by viewModel
 
     private var answerIsTrue: Boolean? = null
     private var answerTextView: TextView? = null
