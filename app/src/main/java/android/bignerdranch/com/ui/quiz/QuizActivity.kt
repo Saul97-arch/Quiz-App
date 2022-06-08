@@ -4,6 +4,7 @@ import android.app.Activity
 import android.bignerdranch.com.R
 import android.bignerdranch.com.databinding.ActivityMainBinding
 import android.bignerdranch.com.ui.cheat.CheatActivity
+import android.bignerdranch.com.ui.cheat.CurrentQuestionInfo
 import android.bignerdranch.data.model.Question
 import android.content.Intent
 import android.os.Bundle
@@ -35,14 +36,7 @@ class QuizActivity : AppCompatActivity() {
         setContentView(binding.root)
         setTitle(R.string.app_name)
         Log.d(TAG, "onCreateBundle called")
-
-        savedInstanceState?.let {
-            currentIndex = savedInstanceState.getInt(KEY_INDEX, 0)
-            questionBank[currentIndex].isCheaterOnQuestion =
-                savedInstanceState.getBoolean(KEY_CHEATER, false)
-        }
-
-        setupElements()
+        // com viewmodel não precisa savedInstanceState
         setupListeners()
         updateQuestion()
         resetCheatedValues()
@@ -51,37 +45,18 @@ class QuizActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        CurrentQuestionInfo.index = currentIndex
         if (cheatAttempts == 0) {
             cheatButton?.isEnabled = false
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-
-        if (requestCode == REQUEST_CODE_CHEAT) {
-            data?.let {
-                questionBank[currentIndex].isCheaterOnQuestion = CheatActivity.wasAnswerShown(data)
-            }
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i(TAG, "onSaveInstanceState")
-        outState.putInt(KEY_INDEX, currentIndex)
-        outState.putInt(KEY_CHEAT_ATTEMPTS, cheatAttempts)
-        outState.putBoolean(KEY_CHEATER, questionBank[currentIndex].isCheaterOnQuestion)
-    }
-
     private fun newIntent() {
         val intent = Intent(this, CheatActivity::class.java).apply {
-            putExtra(EXTRA_ANSWER_IS_TRUE, questionBank[currentIndex].isAnswerTrue)
+            putExtra(EXTRA_QUESTION_INDEX, currentIndex)
         }
-        startActivityForResult(intent, REQUEST_CODE_CHEAT)
+
+        startActivity(intent)
     }
 
     private fun resetCheatedValues() {
@@ -181,11 +156,13 @@ class QuizActivity : AppCompatActivity() {
     private fun goToPreviousQuestion() {
         // Cool logic to go to the initial position of the array when we get to the last pos
         if (currentIndex > 0) currentIndex = (currentIndex - 1) % questionBank.size
+        CurrentQuestionInfo.index = currentIndex
     }
 
     private fun goToNextQuestion() {
         // Cool logic to go to the initial position of the array when we get to the last pos
         currentIndex = (currentIndex + 1) % questionBank.size
+        CurrentQuestionInfo.index = currentIndex
     }
 
     private fun updateQuestion() {
@@ -223,11 +200,7 @@ class QuizActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val EXTRA_QUESTION_INDEX = "EXTRA_QUESTION_INDEX"
         private const val TAG = "QuizActivity"
-        private const val KEY_INDEX = "index"
-        private const val KEY_CHEATER = "cheater_key"
-        private const val KEY_CHEAT_ATTEMPTS = "cheat attempts key"
-        private const val REQUEST_CODE_CHEAT = 0
-        private const val EXTRA_ANSWER_IS_TRUE = "com.bignerdranch.android.geoquiz.answer_is_true"
     }
 }

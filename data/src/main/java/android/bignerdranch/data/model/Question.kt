@@ -5,6 +5,9 @@ data class Question(
     val isAnswerTrue: Boolean,
     var isCheaterOnQuestion: Boolean
 ) {
+    // Em um cenário em que temos um banco de dados real
+    // mantemos apenas uma isntacia de um objecto Question
+    // Uma vez que construirmos o mesmo aí sim enviamos ao bacno de dados
     companion object {
         val questionBank = arrayOf(
             Question(
@@ -31,7 +34,7 @@ data class Question(
                 "Lake Baikal is the world\\'s oldest and deepest freshwater lake.",
                 isAnswerTrue = true,
                 isCheaterOnQuestion = false
-            ),
+            )
         )
     }
 }
