@@ -68,6 +68,7 @@ class QuizActivityViewModel : ViewModel() {
     fun updateQuestionLiveData () {
         val question = questionBank[currentIndex]
         _question.postValue(question.question)
+        cheated = null
     }
 
     fun incrementScore() {

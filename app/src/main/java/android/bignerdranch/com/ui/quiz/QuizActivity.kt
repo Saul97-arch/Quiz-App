@@ -69,7 +69,7 @@ class QuizActivity : AppCompatActivity() {
             putExtra(EXTRA_QUESTION_INDEX, viewModel.currentIndex)
         }
 
-        startActivity(intent)
+        startActivityForResult(intent, REQUEST_CODE_CHEAT)
     }
 
     private fun setupListeners() {
