@@ -6,8 +6,6 @@ import android.bignerdranch.com.ui.cheat.CheatActivity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -70,7 +68,7 @@ class QuizActivity : AppCompatActivity() {
             }
         })
         */
-        trueButton?.setOnClickListener {
+        binding.trueButton.setOnClickListener {
             checkAnswer(true)
             disableButtonForCurrentQuestion()
             displayFinalScore()
@@ -79,7 +77,7 @@ class QuizActivity : AppCompatActivity() {
             }
         }
 
-        falseButton?.setOnClickListener {
+        binding.falseButton.setOnClickListener {
             checkAnswer(false)
             disableButtonForCurrentQuestion()
             displayFinalScore()
@@ -89,20 +87,19 @@ class QuizActivity : AppCompatActivity() {
             }
         }
 
-        nextButton?.setOnClickListener {
+        binding.nextButton.setOnClickListener {
             goToNextQuestion()
             updateQuestion()
             enableButtonForTheNextQuestion()
         }
 
-        previousButton?.setOnClickListener {
+        binding.previousButton.setOnClickListener {
             goToPreviousQuestion()
             updateQuestion()
         }
 
-        cheatButton?.setOnClickListener {
-            cheatAttempts--
-            setCheatsRemainingText()
+        binding.cheatButton.setOnClickListener {
+            viewModel.onCheatButtonClicked()
             newIntent()
         }
     }
@@ -119,13 +116,13 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun disableButtonForCurrentQuestion() {
-        trueButton?.isEnabled = false
-        falseButton?.isEnabled = false
+        binding.trueButton.isEnabled = false
+        binding.falseButton.isEnabled = false
     }
 
     private fun enableButtonForTheNextQuestion() {
-        trueButton?.isEnabled = true
-        falseButton?.isEnabled = true
+        binding.trueButton.isEnabled = true
+        binding.falseButton.isEnabled = true
     }
 
     private fun goToPreviousQuestion() {
@@ -137,8 +134,7 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        val question = questionBank[currentIndex].question
-        mQuestionTextView?.text = question
+        viewModel.updateQuestionLiveData()
     }
 
     private fun checkAnswer(userPressedTrue: Boolean) {
