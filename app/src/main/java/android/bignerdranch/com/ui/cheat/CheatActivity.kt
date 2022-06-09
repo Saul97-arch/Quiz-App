@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.bignerdranch.com.R
 import android.bignerdranch.com.databinding.ActivityCheatBinding
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -35,10 +36,17 @@ class CheatActivity : AppCompatActivity() {
         }
     }
 
+    private fun setAnswerShownResult() {
+        val data = Intent()
+        data.putExtra(EXTRA_ANSWER_SHOWN, true)
+        setResult(RESULT_OK, data)
+    }
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun setupListeners() {
         binding.showAnswerButton.setOnClickListener {
             viewModel.onCheatButtonClicked()
+            setAnswerShownResult()
             setTextAnswer()
             animateButton()
         }
@@ -84,5 +92,9 @@ class CheatActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_QUESTION_INDEX = "EXTRA_QUESTION_INDEX"
+        private const val EXTRA_ANSWER_SHOWN = "EXTRA_ANSWER_SHOWN"
+        fun wasAnswerShown(result : Intent) : Boolean{
+            return result.getBooleanExtra(EXTRA_ANSWER_SHOWN, false)
+        }
     }
 }

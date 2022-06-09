@@ -182,5 +182,6 @@ class QuizActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_QUESTION_INDEX = "EXTRA_QUESTION_INDEX"
         private const val TAG = "QuizActivity"
+        private const val REQUEST_CODE_CHEAT = 0
     }
 }
