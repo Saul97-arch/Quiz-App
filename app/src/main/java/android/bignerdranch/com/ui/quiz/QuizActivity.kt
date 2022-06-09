@@ -1,11 +1,8 @@
 package android.bignerdranch.com.ui.quiz
 
-import android.app.Activity
 import android.bignerdranch.com.R
 import android.bignerdranch.com.databinding.ActivityMainBinding
 import android.bignerdranch.com.ui.cheat.CheatActivity
-import android.bignerdranch.com.ui.cheat.CurrentQuestionInfo
-import android.bignerdranch.data.model.Question
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,22 +10,12 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import kotlin.math.roundToInt
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class QuizActivity : AppCompatActivity() {
 
-    private var trueButton: Button? = null
-    private var falseButton: Button? = null
-    private var nextButton: Button? = null
-    private var previousButton: Button? = null
-    private var mQuestionTextView: TextView? = null
-    private var cheatsRemainingTextView: TextView? = null
-    private var cheatButton: Button? = null
-    private var currentIndex: Int = 0
-    private var currentScore: Int = 0
-    private var cheatAttempts: Int = 3
-
-    private val questionBank = Question.questionBank
+    private val viewModel: QuizActivityViewModel by viewModel()
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,45 +23,41 @@ class QuizActivity : AppCompatActivity() {
         setContentView(binding.root)
         setTitle(R.string.app_name)
         Log.d(TAG, "onCreateBundle called")
-        // com viewmodel não precisa savedInstanceState
+        subscribeEvents()
         setupListeners()
         updateQuestion()
-        resetCheatedValues()
-        setCheatsRemainingText()
+        viewModel.resetCheatedValues()
+
     }
 
     override fun onResume() {
         super.onResume()
-        CurrentQuestionInfo.index = currentIndex
-        if (cheatAttempts == 0) {
-            cheatButton?.isEnabled = false
+        binding.tvRemainingCheats?.text =
+            getString(R.string.cheats_remaing, viewModel.cheatAttempts.value)
+        disableCheatButton()
+    }
+
+    private fun subscribeEvents() {
+        viewModel.question.observe(this) {
+            binding.questionTextView.text = it
+        }
+        viewModel.isAnswerTrue.observe(this) {
+            //viewModel.onCheckAnswer()
+        }
+    }
+
+    private fun disableCheatButton() {
+        if (viewModel.onDisableCheatButton()) {
+            binding.cheatButton.isEnabled = false
         }
     }
 
     private fun newIntent() {
         val intent = Intent(this, CheatActivity::class.java).apply {
-            putExtra(EXTRA_QUESTION_INDEX, currentIndex)
+            putExtra(EXTRA_QUESTION_INDEX, viewModel.currentIndex)
         }
 
         startActivity(intent)
-    }
-
-    private fun resetCheatedValues() {
-        if (currentIndex + 1 == questionBank.size) {
-            questionBank.map { question ->
-                question.isCheaterOnQuestion = false
-            }
-        }
-    }
-
-    private fun setupElements() {
-        mQuestionTextView = findViewById(R.id.question_text_view)
-        trueButton = findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-        nextButton = findViewById(R.id.next_button)
-        previousButton = findViewById(R.id.previous_button)
-        cheatButton = findViewById(R.id.cheat_button)
-        cheatsRemainingTextView = findViewById(R.id.tv_remainingCheats)
     }
 
     private fun setupListeners() {
@@ -91,7 +74,7 @@ class QuizActivity : AppCompatActivity() {
             checkAnswer(true)
             disableButtonForCurrentQuestion()
             displayFinalScore()
-            if (lastQuestion()) {
+            if (viewModel.lastQuestion()) {
                 resetScore()
             }
         }
@@ -101,7 +84,7 @@ class QuizActivity : AppCompatActivity() {
             disableButtonForCurrentQuestion()
             displayFinalScore()
 
-            if (lastQuestion()) {
+            if (viewModel.lastQuestion()) {
                 resetScore()
             }
         }
@@ -124,24 +107,16 @@ class QuizActivity : AppCompatActivity() {
         }
     }
 
-    private fun setCheatsRemainingText() {
-        cheatsRemainingTextView?.text = getString(R.string.cheats_remaing, cheatAttempts)
-    }
-
-    private fun lastQuestion() = currentIndex == questionBank.size - 1
 
     private fun displayFinalScore() {
-        if (currentIndex + 1 == questionBank.size) {
+        if (viewModel.isEndOfTheList()) {
             Toast.makeText(
                 this,
-                "You got  ${getPercentageOfCorrectQuestions()}% of the questions!",
+                "You got  ${viewModel.getPercentageOfCorrectQuestions()}% of the questions!",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
-
-    private fun getPercentageOfCorrectQuestions() =
-        (currentScore.toDouble().div(questionBank.size) * 100).roundToInt()
 
     private fun disableButtonForCurrentQuestion() {
         trueButton?.isEnabled = false
@@ -154,15 +129,11 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun goToPreviousQuestion() {
-        // Cool logic to go to the initial position of the array when we get to the last pos
-        if (currentIndex > 0) currentIndex = (currentIndex - 1) % questionBank.size
-        CurrentQuestionInfo.index = currentIndex
+        viewModel.goToFirstPosIfGoingToPreviousQuestion()
     }
 
     private fun goToNextQuestion() {
-        // Cool logic to go to the initial position of the array when we get to the last pos
-        currentIndex = (currentIndex + 1) % questionBank.size
-        CurrentQuestionInfo.index = currentIndex
+        viewModel.goToFirstPosIfIsGoingToNextQuestion()
     }
 
     private fun updateQuestion() {
@@ -171,19 +142,18 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(userPressedTrue: Boolean) {
-        val answerIsTrue: Boolean = questionBank[currentIndex].isAnswerTrue
-
-        val messageResId = if (questionBank[currentIndex].isCheaterOnQuestion) {
+        viewModel.onCheckAnswer()
+        val messageResId = if (viewModel.isCheater.value == true) {
             R.string.judgment_toast
         } else {
-            if (userPressedTrue == answerIsTrue) {
+            if (userPressedTrue == viewModel.isAnswerTrue.value) {
                 R.string.correct_toast
             } else {
                 R.string.incorrect_toast
             }
         }
 
-        updateScore(userPressedTrue, answerIsTrue)
+        viewModel.isAnswerTrue.value?.let { updateScore(userPressedTrue, it) }
 
         messageResId.let {
             Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
@@ -192,11 +162,11 @@ class QuizActivity : AppCompatActivity() {
     }
 
     private fun updateScore(userPressedTrue: Boolean, answerIsTrue: Boolean) {
-        if (userPressedTrue == answerIsTrue) currentScore++
+        if (userPressedTrue == answerIsTrue) viewModel.incrementScore()
     }
 
     private fun resetScore() {
-        currentScore = 0
+        viewModel.onResetScore()
     }
 
     companion object {

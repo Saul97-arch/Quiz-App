@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModel
 
 class CheatActivityViewModel : ViewModel() {
 
+    var index = 0
     private val questionBank = Question.questionBank
     private val _answerIsTrue = MutableLiveData<Boolean>()
     val answerIsTrue: LiveData<Boolean> get() = _answerIsTrue
 
     fun onCheatButtonClicked() {
-        CurrentQuestionInfo.index?.let {
-            _answerIsTrue.value = questionBank[it].isAnswerTrue
-        }
+        questionBank[index].isCheaterOnQuestion = true
+        _answerIsTrue.value = questionBank[index].isAnswerTrue
     }
 }

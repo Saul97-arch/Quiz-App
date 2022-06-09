@@ -19,16 +19,13 @@ class CheatActivity : AppCompatActivity() {
     private val viewModel: CheatActivityViewModel by viewModel()
     private lateinit var binding: ActivityCheatBinding
 
-    private var questionIndex : Int? = null
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCheatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         subscribeEvents()
-        questionIndex = intent.getIntExtra(EXTRA_QUESTION_INDEX, 0)
-
+        viewModel.index = intent.getIntExtra(EXTRA_QUESTION_INDEX, 0)
         setupListeners()
     }
 
@@ -73,6 +70,7 @@ class CheatActivity : AppCompatActivity() {
     }
 
     private fun setTextAnswer() {
+        // faz enum
         if (viewModel.answerIsTrue.value == true) {
             binding.answerTextView.setText(R.string.true_button)
         } else {
