@@ -80,7 +80,6 @@ class QuizActivityViewModel : ViewModel() {
     }
 
     fun onCheckAnswer() {
-        // TODO, descobrir quando usar postValue e atribuição
         _isAnswerTrue.value = questionBank[currentIndex].isAnswerTrue
         _isCheater.value = cheated
     }

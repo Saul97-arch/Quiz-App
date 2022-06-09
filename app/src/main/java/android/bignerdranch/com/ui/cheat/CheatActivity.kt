@@ -78,7 +78,6 @@ class CheatActivity : AppCompatActivity() {
     }
 
     private fun setTextAnswer() {
-        // faz enum
         if (viewModel.answerIsTrue.value == true) {
             binding.answerTextView.setText(R.string.true_button)
         } else {
