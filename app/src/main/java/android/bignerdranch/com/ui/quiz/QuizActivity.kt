@@ -1,5 +1,6 @@
 package android.bignerdranch.com.ui.quiz
 
+import android.app.Activity
 import android.bignerdranch.com.R
 import android.bignerdranch.com.databinding.ActivityMainBinding
 import android.bignerdranch.com.ui.cheat.CheatActivity
@@ -26,6 +27,19 @@ class QuizActivity : AppCompatActivity() {
         updateQuestion()
         viewModel.resetCheatedValues()
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            data?.let {
+                viewModel.cheated = CheatActivity.wasAnswerShown(data)
+            }
+        }
     }
 
     override fun onResume() {

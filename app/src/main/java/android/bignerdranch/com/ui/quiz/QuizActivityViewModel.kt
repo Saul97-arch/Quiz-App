@@ -9,6 +9,7 @@ import kotlin.math.roundToInt
 class QuizActivityViewModel : ViewModel() {
 
     var currentIndex: Int = 0
+    var cheated : Boolean? = null
     private val questionBank = Question.questionBank
     private var currentScore: Int = 0
 
